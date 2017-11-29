@@ -8,10 +8,14 @@
     "browser-sync": "^2.18.13",
     "dredd": "^4.7.2",
     "gulp": "^3.9.1",
-    "gulp-aglio": "0.0.10"
+    "gulp-aglio": "0.0.10",
+    "gulp-ejs": "^3.1.0",
+    "gulp-rename": "^1.2.2",
+    "rimraf": "^2.6.2"
   },
   "scripts": {
     "start": "dredd",
+    "docs": "gulp",
     "setting": "dredd init -r apiary -j apiaryApiKey:<key> -j apiaryApiName:<name>",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
