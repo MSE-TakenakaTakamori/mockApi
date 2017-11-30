@@ -6,28 +6,25 @@ const rimraf = require('rimraf');
 const ejs = require('gulp-ejs');
 
 const reload = browserSync.reload;
-const TEMPLATE_FILES = ['apidocs/**/*.md'];
-const LAYOUT_FILE = 'apidocs/layout.md';
-const PUBLISHED_DIR = 'published';
+const TEMPLATE_FILES = ['src/**/*'];
+const BASE_FILE = 'src/index.ejs';
+const BUILD_DIR = 'dest';
+const APIARY_FILE = './apiary.apib';
 
-gulp.task('combine', function(){
-  return gulp.src(LAYOUT_FILE)
+gulp.task('combine', () => {
+  return gulp.src(BASE_FILE)
     .pipe(ejs({},{ ext: '.md' }))
     .pipe(rename('index.md'))
-    .pipe(gulp.dest(PUBLISHED_DIR));
+    .pipe(gulp.dest(BUILD_DIR));
 });
 
-gulp.task('generate-api-docs', ['combine'], function() {
-  return gulp.src(PUBLISHED_DIR + '/index.md')
+gulp.task('generate', ['combine'], () => {
+  return gulp.src(BUILD_DIR + '/index.md')
     .pipe(aglio({template: 'default'}))
-    .pipe(gulp.dest(PUBLISHED_DIR));
+    .pipe(gulp.dest(BUILD_DIR));
 });
 
-gulp.task('watch', function () {
-  gulp.watch(TEMPLATE_FILES, ['generate-api-docs', reload]);
-});
-
-gulp.task('browserSync', function() {
+gulp.task('browserSync', () => {
   browserSync({
     logConnections: true,
     logFileChanges: true,
@@ -35,14 +32,25 @@ gulp.task('browserSync', function() {
     port: 8088,
     open: false,
     server: {
-      baseDir: PUBLISHED_DIR
+      baseDir: BUILD_DIR
     }
   });
 });
 
-gulp.task('clean', function(cb) {
-  rimraf(PUBLISHED_DIR, cb);
+gulp.task('clean', (cb) => {
+  rimraf(BUILD_DIR, cb);
 });
 
-gulp.task('publish', ['clean', 'generate-api-docs']);
-gulp.task('default', ['generate-api-docs', 'watch', 'browserSync']);
+gulp.task('fileWatch', () => {
+  gulp.watch(TEMPLATE_FILES, ['generate', reload]);
+});
+
+gulp.task('build', () => {
+  return gulp.src(BASE_FILE)
+    .pipe(ejs({},{ ext: '.md' }))
+    .pipe(rename(APIARY_FILE))
+    .pipe(gulp.dest('./'));
+});
+
+gulp.task('default', ['generate']);
+gulp.task('watch', ['generate', 'fileWatch', 'browserSync']);
